@@ -13,7 +13,7 @@ public class WallTile extends Tile
     @Override
     public void drawTile(String mark)
     {
-        System.out.print(" <"  + mark + "> ");
+        System.out.print(" <"  + "0" + "> ");
     }
     
 }

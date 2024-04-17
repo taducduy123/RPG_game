@@ -1,6 +1,8 @@
 package ENTITY;
 
-public abstract class Character
+import BasicSetting.BasicSetting;
+
+public abstract class Character implements BasicSetting
 {
     private String Name;
     private int HP, maxHP;
@@ -37,4 +39,47 @@ public abstract class Character
     //Abstract Methods
     public abstract String getMark();
    
+
+    public void moveUp()
+    {
+        int y_afterUp = this.y - 1;
+        if(!(y_afterUp < 0 || y_afterUp >= maxTileRows))        //Check if character move out of screen
+        {        
+            this.y = y_afterUp;
+        }
+    }
+
+    public void moveDown()
+    {
+        int y_afterDown = this.y + 1;
+        if(!(y_afterDown < 0 || y_afterDown >= maxTileRows))        //Check if character move out of screen
+        {
+            this.y = y_afterDown;
+        }
+    }
+    
+
+    public void moveLeft()
+    {
+        int x_afterLeft = this.x - 1;
+        if(!(x_afterLeft < 0 || x_afterLeft >= maxTileCols))        //Check if character move out of screen
+        {
+            this.x = x_afterLeft;
+        }
+    }
+
+
+    public void moveRight()
+    {
+        int x_afterRight = this.x + 1;
+        if(!(x_afterRight < 0 || x_afterRight >= maxTileCols))        //Check if character move out of screen
+        {
+            this.x = x_afterRight;
+        }       
+    }
+
+    
+
+   
+    
 }
