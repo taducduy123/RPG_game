@@ -63,9 +63,7 @@ public class CollisionChecker implements BasicSetting
         boolean collision = false;
         int x_afterRight = obj.getX() + 1;          // > 0  
 
-
-
-        if(x_afterRight < maxTileCols && gm.map.tileManager[obj.getY()][x_afterRight] == 0)  //a[19][19]
+        if(x_afterRight < maxTileCols && gm.map.tileManager[obj.getY()][x_afterRight] == 0)  
         {
             collision = true;
         }
