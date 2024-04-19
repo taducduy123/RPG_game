@@ -1,5 +1,6 @@
 package MAP.TILE;
 
+import ENTITY.Character;
 public abstract class Tile 
 {
     
@@ -14,6 +15,6 @@ public abstract class Tile
 
     //Abstract
     public abstract void drawTile(String mark);
-    
+    public abstract void applyEffectTo(Character character);
 
 }

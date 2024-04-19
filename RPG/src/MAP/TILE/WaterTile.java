@@ -1,8 +1,10 @@
 package MAP.TILE;
 
+import ENTITY.Character;
+
 public class WaterTile extends Tile
 {
-    private int heal;
+    private int hpToHeal = 5;
 
     //---------------------------------------------------
     public WaterTile()
@@ -14,7 +16,13 @@ public class WaterTile extends Tile
     public void drawTile(String mark)
     {
         System.out.print(" ("  +  mark + ") ");
+    }
+
+    @Override
+    public void applyEffectTo(Character character)
+    {
+        character.heal(hpToHeal);
     }    
 
-    //public void applyEffect(Character ch) /// hoi mau
+    
 }

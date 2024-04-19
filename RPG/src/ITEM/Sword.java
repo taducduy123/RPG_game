@@ -15,4 +15,8 @@ public class Sword extends Weapon
     @Override
     public String getMark()
     {return "S";}
+
+    @Override
+    public int getType()
+    {return 1;}
 }

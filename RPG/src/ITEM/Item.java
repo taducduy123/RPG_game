@@ -22,9 +22,12 @@ public abstract class Item
     {return this.x;}
     public int getY()
     {return this.y;}
+    public String getName()
+    {return this.name;}
 
 
     //Abstract Methods
     public abstract String getMark();
-    
+    public abstract int getType();
+
 }

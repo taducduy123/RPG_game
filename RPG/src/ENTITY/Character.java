@@ -29,12 +29,37 @@ public abstract class Character implements BasicSetting
     {return this.x;}
     public int getY()
     {return this.y;}
+    public int getMaxHp()
+    {return this.maxHP;}
+    public int getHP()
+    {return this.HP;}
 
     //Setter Methods
     public void setX(int x)
     {this.x = x;}
     public void setY(int y)
     {this.y = y;}
+
+
+    //Other usefull methods
+    public void heal(int hpToHeal)
+    {
+        if(HP < maxHP)          
+        {
+            if(HP + hpToHeal >= maxHP)
+            {
+                HP = maxHP;
+            }
+            else
+            {
+                HP += hpToHeal;
+            }
+        }
+    }
+    public void takeDamage(int dame)
+    {
+        HP -= dame;
+    }
 
     //Abstract Methods
     public abstract String getMark();

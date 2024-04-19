@@ -15,4 +15,10 @@ public class Player extends Character
     @Override
     public String getMark()
     {return "X";}
+
+    //Show state of player
+    public void showState()
+    {
+        System.out.println("HP: " + this.getHP() + " / " + this.getMaxHp());
+    }
 }

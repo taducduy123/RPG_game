@@ -1,6 +1,9 @@
 package CollisionChecker;
 
 import GameMain.GameMain;
+
+import java.util.*;
+
 import BasicSetting.BasicSetting;
 import ENTITY.Character;
 
@@ -63,12 +66,82 @@ public class CollisionChecker implements BasicSetting
         boolean collision = false;
         int x_afterRight = obj.getX() + 1;          // > 0  
 
-        if(x_afterRight < maxTileCols && gm.map.tileManager[obj.getY()][x_afterRight] == 0)  
+
+
+        if(x_afterRight < maxTileCols && gm.map.tileManager[obj.getY()][x_afterRight] == 0)  //a[19][19]
         {
             collision = true;
         }
         return collision;
     }
+
+
+//------------------------------------ Check if monster collides another monster -----------------------------------------
+
+    public boolean monsterCollideMonsterAfter(String direction, Character monster, List<Character> listMonster)
+    {
+        boolean collision = false;
+
+        switch (direction) 
+        {
+            case "up":
+                        int y_afterUp = monster.getY() - 1;
+                        for(Character charac : listMonster)
+                        {
+                            if(monster.getX() == charac.getX() && y_afterUp == charac.getY())
+                            {
+                                collision = true;
+                                break;
+                            }
+                        }
+                        break;
+
+            case "down":
+                        int y_afterDown = monster.getY() + 1;
+                        for(Character charac : listMonster)
+                        {
+                            if(monster.getX() == charac.getX() && y_afterDown == charac.getY())
+                            {
+                                collision = true;
+                                break;
+                            }
+                        }
+                        break;
+
+            case "left":
+                        int x_afterLeft = monster.getX() - 1;
+                        for(Character charac : listMonster)
+                        {
+                            if(x_afterLeft == charac.getX() && monster.getY() == charac.getY())
+                            {
+                                collision = true;
+                                break;
+                            }
+                        }
+                        break;
+
+            case "right":
+                        int x_afterRight = monster.getX() + 1;
+                        for(Character charac : listMonster)
+                        {
+                            if(x_afterRight == charac.getX() && monster.getY() == charac.getY())
+                            {
+                                collision = true;
+                                break;
+                            }
+                        }
+                        break;
+            
+            default:
+                        break;
+        }
+
+
+        return collision;
+    }
+
+
+
 
 
     public static void main(String[] args) 

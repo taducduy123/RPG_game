@@ -14,4 +14,8 @@ public class Axe extends Weapon
     @Override
     public String getMark()
     {return "A";}
+
+    @Override
+    public int getType()
+    {return 1;}
 }

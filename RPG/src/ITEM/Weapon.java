@@ -18,4 +18,8 @@ public class Weapon extends Item
 
     @Override
     public String getMark(){return "WP";}
+
+    @Override
+    public int getType()
+    {return -1;}
 }

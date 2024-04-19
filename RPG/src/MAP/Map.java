@@ -16,10 +16,10 @@ import ENTITY.*;
 
 public abstract class Map implements BasicSetting
 {
-    private Tile[] tile;
+    public Tile[] tile;
     public int[][] tileManager;
 
-    protected List<Item> items;
+    public List<Item> items;
 
     private GameMain gm;           //Link to Main Game
     
