@@ -6,7 +6,7 @@ import CHARACTER.Player;
 import CHARACTER.RegularMonster;
 import ITEM.*;
 import MAP.TILE.*;
-
+import MAP.Pair;
 
 public class Map 
 {
@@ -268,24 +268,24 @@ public class Map
 
     //Remove an Item from map
     public void removeItemHavingPosition(int x, int y)
-   {
+    {
        //Search item having postion (x,y) in the list
        boolean found = false;
        for(Item item: this.items)
-       {
-           if(item != null && item.getX() == x && item.getY() == y)
-           {
-               found = true;
-               this.items.remove(item);
-               break;
-           }
-       }
+        {
+            if(item != null && item.getX() == x && item.getY() == y)
+            {
+                found = true;
+                this.items.remove(item);
+                break;
+            }
+        }
 
-       if(!found)
-       {
+        if(!found)
+        {
            System.out.println("ERROR: Not Found Corresponding Item to Delete!");
-       }      
-   }
+        }      
+    }
 
 
 //---------------------------------------------- Check Validation of Moving ------------------------------------------------------------
@@ -310,27 +310,312 @@ public class Map
    }
    
 
+//---------------------------------------------- My Methods ------------------------------------------------------------
+
+    public void to_EdgeList_Graph(LinkedList<LinkedList<Integer>> list)
+    {   
+        for(int i = 0; i < maxTileRows; i++)
+        {
+            for(int j = 0; j < maxTileCols; j++)
+            {
+                list.add(new LinkedList<>());
+                if(tile[tileManager[i][j]].getSolid() == false)
+                {
+                    if(i - 1 >= 0 && tile[tileManager[i - 1][j]].getSolid() == false)               //up vertex
+                    {
+                        list.get(i * maxTileCols + j).add((i - 1) * maxTileCols + j);
+                    }
+                    if(i + 1 < maxTileRows && tile[tileManager[i + 1][j]].getSolid() == false)      //down vertex
+                    {
+                        list.get(i * maxTileCols + j).add((i + 1) * maxTileCols + j);
+                    }
+                    if(j - 1 >= 0 && tile[tileManager[i][j - 1]].getSolid() == false)               //left vertex
+                    {
+                        list.get(i * maxTileCols + j).add(i * maxTileCols + j - 1);
+                    }
+                    if(j + 1 < maxTileCols && tile[tileManager[i][j + 1]].getSolid() == false)      //right vertex
+                    {
+                        list.get(i * maxTileCols + j).add(i * maxTileCols + j + 1);
+                    }
+                }         
+            }
+        }
+    }
 
 
+    private void DFS_Helper(int u, LinkedList<LinkedList<Integer>> vertex, boolean[] visited)
+    {
+        System.out.print(u + " ");
+        visited[u] = true;
+        for(int v : vertex.get(u))
+        {
+            if(!visited[v])
+            {
+                DFS_Helper(v, vertex, visited);
+            }
+        }
+    }
 
 
+    public void DFS(int u)
+    {
+        LinkedList<LinkedList<Integer>> vertex = new LinkedList<>();
+        this.to_EdgeList_Graph(vertex);
+        boolean[] visited = new boolean[vertex.size()];
+        for(boolean v: visited)
+        {
+            v = false;
+        }
+        DFS_Helper(u, vertex, visited);     
+    }
 
 
+    private void BFS(int u)
+    {
+        LinkedList<LinkedList<Integer>> vertex = new LinkedList<>();
+        this.to_EdgeList_Graph(vertex);
+        boolean[] visited = new boolean[vertex.size()];
+        for(boolean v: visited)
+        {
+            v = false;
+        }
+
+        Queue<Integer> queue = new PriorityQueue<>();
+        queue.add(u);
+        visited[u] = true;
+
+        while(!queue.isEmpty())
+        {
+            int v = queue.element();
+            queue.remove();
+            System.out.print(v + " ");
+            for(int x : vertex.get(v))
+            {
+                if(!visited[x])
+                {
+                    queue.add(x);
+                    visited[x] = true;
+                }
+            }
+        }
+    }
+    
+
+    private boolean hasPathBetween(int x_start, int y_start, int x_end, int y_end, boolean[][] visited, Pair[][] parent)
+    {
+        visited[y_start][x_start] = true;
+        if(tile[tileManager[y_start][x_start]].getSolid() == true)
+        {
+            return false;
+        }
+        if(x_start == x_end && y_start == y_end)
+        {
+            return true;
+        }
+
+        int[] dx = {0, 0, -1, 1};
+        int[] dy = {-1, 1, 0, 0};
+        int x_toCome, y_toCome;
+        for(int i = 0; i < 4; i++)
+        {
+            x_toCome = x_start + dx[i];
+            y_toCome = y_start + dy[i];
+
+            if(0 <= x_toCome && x_toCome < maxTileCols &&
+                0 <= y_toCome && y_toCome < maxTileRows && 
+                tile[tileManager[y_toCome][x_toCome]].getSolid() == false &&
+                visited[y_toCome][x_toCome] == false)
+            {      
+                parent[y_toCome][x_toCome] = new Pair(x_start, y_start);
+                if(hasPathBetween(x_toCome, y_toCome, x_end, y_end, visited, parent))
+                {
+                    return true;
+                }            
+            }
+        }
+        return false;
+    }
+    
+
+    public boolean findPath_DFS_Between(int x_start, int y_start, int x_end, int y_end, List<Pair> path)
+    {
+        boolean[][] visited = new boolean[maxTileRows][maxTileCols];
+        for(int i = 0; i < maxTileRows; i++)
+        {
+            for(int j = 0; j < maxTileCols; j++)
+            {
+                visited[i][j] = false;
+            }
+        }
+        
+        
+        Pair parent[][] = new Pair[maxTileRows][maxTileCols];
+        for(int i = 0; i < maxTileRows; i++)
+        {
+            for(int j = 0; j < maxTileCols; j++)
+            {
+                parent[i][j] = new Pair(-1, -1);
+            }
+        }
+
+        //Tracing path
+        if(!hasPathBetween(x_start, y_start, x_end, y_end, visited, parent))
+        {
+            System.out.println("DOES NOT EXIST PATH!");
+            return false;
+        }
+        else
+        {
+            int tempX, tempY;
+            while(x_end != x_start || y_end != y_start)
+            {
+                path.add(0, new Pair(x_end, y_end));        //Add at First
+                //System.out.println("x_end = " + x_end + " y_end = " + y_end);
+                //Swap replace destination cell by its parent
+                tempX = parent[y_end][x_end].getX();
+                tempY = parent[y_end][x_end].getY();
+                x_end = tempX;
+                y_end = tempY;
+            }
+            path.add(0, new Pair(x_start, y_start));        //Add at First  
+            return true;      
+        }       
+
+        /* 
+        for(int i = 0; i < maxTileRows; i++)
+        {
+            for(int j = 0; j < maxTileCols; j++)
+            {
+                System.out.println("[" + j + "-" + i + "]:   " + parent[i][j].getX() + "<--->" + parent[i][j].getY());;
+            }
+        }
+        */
+    }
+
+
+    //O(V + E)
+    public boolean findPath_BFS_Between(int x_start, int y_start, int x_end, int y_end, List<Pair> path)
+    {
+        boolean[][] visited = new boolean[maxTileRows][maxTileCols];
+        for(int i = 0; i < maxTileRows; i++)
+        {
+            for(int j = 0; j < maxTileCols; j++)
+            {
+                visited[i][j] = false;
+            }
+        }
+        
+    
+        Pair parent[][] = new Pair[maxTileRows][maxTileCols];
+        for(int i = 0; i < maxTileRows; i++)
+        {
+            for(int j = 0; j < maxTileCols; j++)
+            {
+                parent[i][j] = new Pair(-1, -1);
+            }
+        }
+
+        //1. Initialize an empty queue
+        LinkedList<Pair> queue = new LinkedList<>();
+
+        //2. Put source (starting point) into the queue
+        queue.add(new Pair(x_start, y_start));
+        parent[y_start][x_start] = new Pair(x_start, y_start);  //parent of starting point is itself
+        visited[y_start][x_start] = true;                       
+
+        //3. While the queue is not empty, then do:
+        Pair front, adjacent;   
+        int[] dx = {0, 0, -1, 1};
+        int[] dy = {-1, 1, 0, 0};
+        int x_toCome, y_toCome;
+        while(!queue.isEmpty())
+        {
+            //3.1.  Pop the front element from the queue
+            front = new Pair(queue.get(0).getX(), queue.get(0).getY());   
+            queue.removeFirst();
+
+            //3.2.  Push all adjacent (unvisited) of that front into the queue
+            for(int i = 0; i < 4; i++)              //4 possible adjacent (above, below, left, right vertex)
+            {                                       //of that front
+                x_toCome = front.getX() + dx[i];
+                y_toCome = front.getY() + dy[i];
+                
+                //Check if an adjacent (among 4 possible cases) is actually an adjacent of the front
+                if(0 <= x_toCome && x_toCome < maxTileCols && 0 <= y_toCome && y_toCome < maxTileRows && 
+                    tile[tileManager[y_toCome][x_toCome]].getSolid() == false && visited[y_toCome][x_toCome] == false)
+                {
+                    adjacent = new Pair(x_toCome, y_toCome);
+                    queue.add(adjacent);
+                    parent[y_toCome][x_toCome] = new Pair(front.getX(), front.getY());      //parent of adjecent 
+                    visited[y_toCome][x_toCome] = true;
+                }
+            }
+        }
+
+        //4. Tracing the path (if found)
+        if(parent[y_end][x_end].getX() == -1 && parent[y_end][x_end].getY() == -1)  //not found path
+        {
+            System.out.println("DOES NOT EXIST PATH");
+            return false;
+        }
+        else
+        {
+            /* 
+            for(int i = 0; i < maxTileRows; i++)
+            {
+                for(int j = 0; j < maxTileCols; j++)
+                {
+                     System.out.println("Parent of " + j + " " + i + ":  " + parent[i][j].getX() + "<---->" + parent[i][j].getY());
+                }
+            }
+            */
+            
+            //4.1 Tracing path using parent
+            int tempX, tempY;
+            while(x_end != x_start || y_end != y_start)     //while destination is not source
+            {
+                path.add(0, new Pair(x_end, y_end));        //Add at First
+                //System.out.println("x_end = " + x_end + " y_end = " + y_end);
+                //Swap replace destination cell by its parent
+
+                //Update new destination = parent of old destination
+                tempX = parent[y_end][x_end].getX();
+                tempY = parent[y_end][x_end].getY();
+                x_end = tempX;
+                y_end = tempY;
+            }
+            path.add(0, new Pair(x_start, y_start));        //Add at First  
+            return true;
+        }
+    }
 
    //Embedded Main
    public static void main(String[] args) 
    {
-        Player hero = new Player("Hero", 0, 0, 0, 0, 0, 0);
+        
+        //Player hero = new Player("Hero", 0, 0, 0, 0, 0, 0);
 
-        String path = "G:\\Code Java\\RPG_TEST_FORME\\RPG_FOR_ME\\src\\InputFile\\map1.txt";
+        String path = "src/InputFile/map1.txt";
         Map map = new Map(path);
-
-        //map.addItem(new Armor("ARmor", 0, 0, 5, 2));
-        //map.addItem(new Armor("ARmor", 0, 0, 17, 17));
-        //map.addMonster(new We("Wolf", 19, 19));
-        //map.addItem(new LongRangeWeapon("Ac", 0, 0, 18, 18));
-        //map.addPlayer(hero);
-
         map.drawMap();
+        //LinkedList<LinkedList<Integer>> vertice = new LinkedList<>();
+        //map.to_EdgeList_Graph(vertice);
+        //System.out.println(map.path(0, 0, 1, 0));
+        
+         
+        List<Pair> Tpath = new LinkedList<>();
+        map.findPath_BFS_Between(0, 0, 19, 19, Tpath);
+
+          
+        for(Pair p : Tpath)
+        {
+            System.out.println(p.getX() + " ---- " + p.getY());
+        }
+        
+
+
+        
+        
+        
    }
 }

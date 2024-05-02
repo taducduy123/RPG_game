@@ -1,8 +1,13 @@
 package CHARACTER;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
+import java.util.Scanner;
 
 import ITEM.*;
+import MAP.Map;
+import MAP.Pair;
 
 public class TargetMonster extends Monster
 {
@@ -58,20 +63,100 @@ public class TargetMonster extends Monster
     }
 
 
+//------------------------------------ Persuing Move ---------------------------------------
+
+    public void moveForwardTo(Character player, Map map)
+    {
+        List<Pair> path = new LinkedList<>();
+        int currentStep = 0;
+        if(map.findPath_BFS_Between(this.getX(), this.getY(), player.getX(), player.getY(), path))
+        {
+            //Search the current position of monster, compared to the path
+            for(int i = 0; i < path.size(); i++)
+            {
+                if(path.get(i).getX() == this.getX() && path.get(i).getY() == this.getY())
+                {
+                    currentStep = i;
+                    break;
+                }
+            }
+
+
+            //Navigate monster to follow the correct path
+            if(currentStep < path.size() - 1)       //if the monster does not reach target
+            {
+                int dx = path.get(currentStep + 1).getX() - this.getX();
+                int dy = path.get(currentStep + 1).getY() - this.getY();
+                if(dx == 0 && dy == -1)
+                {
+                    this.moveUp(map);
+                }
+                else if(dx == 0 && dy == 1)
+                {
+                    this.moveDown(map);
+                }
+                else if(dx == -1 && dy == 0)
+                {
+                    this.moveLeft(map);
+                }
+                else if(dx == 1 && dy == 0)
+                {
+                    this.moveRight(map);
+                }
+            }
+        }
+        else        //random move if does't find path
+        {
+            Random random = new Random();
+            int ranNum = random.nextInt(100) + 1;
+    
+            if(ranNum <= 25)
+            {
+                this.moveUp(map);
+            }
+            else if (25 < ranNum && ranNum <= 50)
+            {
+                this.moveDown(map);
+            }
+            else if (50 < ranNum && ranNum <= 75) 
+            {
+                this.moveLeft(map);
+            }
+            else
+            {
+                this.moveRight(map);
+            }
+        }
+
+
+    }
+
+
+
     public static void main(String[] args) 
     {
-        TargetMonster monster = new TargetMonster("monster", 0, 0, 0, 0, 0);
+        Map myMap = new Map("src/InputFile/map1.txt");
+        TargetMonster myMonster = new TargetMonster(null, 0, 0, 0, 19, 19);
+        Player myPlayer = new Player(null, 0, 0, 0, 0, 0, 0);
+        myMap.addMonster(myMonster);
+        myMap.addPlayer(myPlayer);
         
-        Item item = monster.lootItem();
+        Scanner keyboard = new Scanner(System.in);
 
-        if(item == null)
+        myMap.drawMap();
+        System.out.println("");
+        int choice;
+        int count = 0;
+        do
         {
-            System.out.println("null");
-        }
-        else
-        {
-            System.out.println(item);
-        }
-        
+            System.out.println("Press 1 to continue, otherwise 0");
+            choice = keyboard.nextInt();
+            count++;
+            myMonster.moveForwardTo(myPlayer, myMap);
+            myMap.drawMap();
+            System.out.println("Step = " + count);
+        } while (choice != 0);
+
+        keyboard.close();
     }
 }
